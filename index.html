@@ -1,113 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <title>WebGL Mug Example</title>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-        }
-        canvas {
-            display: block;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Three.js サンプル</title>
+  <style>
+    body { margin: 0; }
+    canvas { display: block; }
+  </style>
 </head>
 <body>
-    <canvas id="glCanvas"></canvas>
-    <script src="webgl-utils.js"></script> <!-- WebGLユーティリティライブラリ -->
-    <script src="mug.js"></script> <!-- WebGLプログラム本体 -->
-    let gl; // WebGLコンテキスト
-let shaderProgram; // シェーダープログラム
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
 
-function start() {
-    const canvas = document.getElementById("glCanvas");
-    gl = initWebGL(canvas); // WebGLの初期化
-    if (!gl) {
-        return;
+    const geometry = new THREE.BoxGeometry();
+    const material = new new THREE.MeshPhongMaterial({ color: 0x0000ff, emissive: 0xffff00, emissiveIntensity: 3 });
+    const cube = new THREE.Mesh(geometry, material);
+    scene.add(cube);
+
+    camera.position.z = 5;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      cube.rotation.x += 0.01;
+      cube.rotation.y += 0.01;
+      renderer.render(scene, camera);
     }
 
-    // シェーダープログラムのコンパイルとリンク
-    shaderProgram = initShaders(gl);
-    
-    // マグカップの頂点データを作成
-    const mugVertices = [
-        // 底面
-        0.0, 0.0, 0.0,
-        0.5, 0.0, 0.0,
-        0.0, 0.5, 0.0,
-        // 側面
-        0.5, 0.0, 0.0,
-        0.0, 0.5, 0.0,
-        0.5, 0.5, 0.0,
-    ];
-    
-    // バッファを作成して頂点データをGPUに転送
-    const mugVertexBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, mugVertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(mugVertices), gl.STATIC_DRAW);
-    
-    // シェーダーに頂点データをバインド
-    const vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
-    gl.enableVertexAttribArray(vertexPositionAttribute);
-    gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
-    
-    // 描画ループを開始
-    drawScene();
-}
-
-function initWebGL(canvas) {
-    gl = null;
-    try {
-        gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-    } catch (e) {
-        console.error("Unable to initialize WebGL. Your browser may not support it.");
-    }
-    return gl;
-}
-
-function initShaders(gl) {
-    // 頂点シェーダーのソースコード
-    const vsSource = `
-        attribute vec3 aVertexPosition;
-        void main(void) {
-            gl_Position = vec4(aVertexPosition, 1.0);
-        }
-    `;
-
-    // フラグメントシェーダーのソースコード
-    const fsSource = `
-        void main(void) {
-            gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0); // マグカップを赤色で描画
-        }
-    `;
-
-    // 頂点シェーダーのコンパイル
-    const vertexShader = gl.createShader(gl.VERTEX_SHADER);
-    gl.shaderSource(vertexShader, vsSource);
-    gl.compileShader(vertexShader);
-
-    // フラグメントシェーダーのコンパイル
-    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-    gl.shaderSource(fragmentShader, fsSource);
-    gl.compileShader(fragmentShader);
-
-    // シェーダープログラムの作成とリンク
-    const program = gl.createProgram();
-    gl.attachShader(program, vertexShader);
-    gl.attachShader(program, fragmentShader);
-    gl.linkProgram(program);
-    gl.useProgram(program);
-
-    return program;
-}
-
-function drawScene() {
-    gl.clearColor(0.0, 0.0, 0.0, 1.0); // 背景を黒に設定
-    gl.clear(gl.COLOR_BUFFER_BIT);
-
-    gl.drawArrays(gl.TRIANGLES, 0, 6); // マグカップを描画
-}
-
+    animate();
+  </script>
 </body>
 </html>
