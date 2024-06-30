@@ -17,9 +17,7 @@
     <canvas id="glCanvas"></canvas>
     <script src="webgl-utils.js"></script> <!-- WebGLユーティリティライブラリ -->
     <script src="mug.js"></script> <!-- WebGLプログラム本体 -->
-</body>
-</html>
-let gl; // WebGLコンテキスト
+    let gl; // WebGLコンテキスト
 let shaderProgram; // シェーダープログラム
 
 function start() {
@@ -110,3 +108,6 @@ function drawScene() {
 
     gl.drawArrays(gl.TRIANGLES, 0, 6); // マグカップを描画
 }
+
+</body>
+</html>
